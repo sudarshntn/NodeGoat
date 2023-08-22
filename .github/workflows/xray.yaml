@@ -29,18 +29,18 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          registry: ${{ vars.JF_URL }}
-          username: ${{ vars.JF_USER }}
+          registry: ${{ secrets.JF_URL }}
+          username: ${{ secrets.JF_USER }}
           password: ${{ secrets.JF_PASSWORD }}
 
       - name: Setup the JFrog CLI
         uses: jfrog/setup-jfrog-cli@v3
         env:
           # JFrog platform url (for example: https://acme.jfrog.io) 
-          JF_URL: https://${{ vars.JF_URL }}
+          JF_URL: https://${{ secrets.JF_URL }}
           
           # Basic authentication credentials
-          JF_USER: ${{ vars.JF_USER }}
+          JF_USER: ${{ secrets.JF_USER }}
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
 
       - name: Run the JFrog CLI commands
@@ -48,7 +48,7 @@ jobs:
           JF_BUILD_NAME: nodegoat
         run: |
           jfrog rt ping
-          jfrog docker --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }} build -t ${{ vars.JF_URL }}/danielw-docker-local/$JF_BUILD_NAME:build-${{ github.run_number }} .
-          jfrog rt docker-push ${{ vars.JF_URL }}/danielw-docker-local/$JF_BUILD_NAME:build-${{github.run_number}} danielw-docker-local --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }}
+          jfrog docker --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }} build -t ${{ secrets.JF_URL }}/sudarshntn-docker-local/$JF_BUILD_NAME:build-${{ github.run_number }} .
+          jfrog rt docker-push ${{ secrets.JF_URL }}/sudarshntn-docker-local/$JF_BUILD_NAME:build-${{github.run_number}} sudarshntn-docker-local --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }}
           jfrog rt build-publish $JF_BUILD_NAME ${{ github.run_number }}
           jfrog build-scan $JF_BUILD_NAME ${{ github.run_number }}
