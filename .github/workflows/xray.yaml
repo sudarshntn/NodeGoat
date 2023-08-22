@@ -48,7 +48,7 @@ jobs:
           JF_BUILD_NAME: nodegoat
         run: |
           jfrog rt ping
-          jfrog docker --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }} build -t ${{ secrets.JF_URL2 }}/sudarshntn-docker-local/$JF_BUILD_NAME:build-${{ github.run_number }} .
-          jfrog rt docker-push ${{ secrets.JF_URL2 }}/sudarshntn-docker-local/$JF_BUILD_NAME:build-${{github.run_number}} sudarshntn-docker-local --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }}
+          jfrog docker --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }} build -t ${{ secrets.JF_URL2 }}/docker-local/$JF_BUILD_NAME:build-${{ github.run_number }} .
+          jfrog rt docker-push ${{ secrets.JF_URL2 }}/docker-local/$JF_BUILD_NAME:build-${{github.run_number}} docker-local --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }}
           jfrog rt build-publish $JF_BUILD_NAME ${{ github.run_number }}
           jfrog build-scan $JF_BUILD_NAME ${{ github.run_number }}
