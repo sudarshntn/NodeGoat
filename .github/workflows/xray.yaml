@@ -1,0 +1,54 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Xray
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "master" ]
+  #pull_request:
+  #  branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ vars.JF_URL }}
+          username: ${{ vars.JF_USER }}
+          password: ${{ secrets.JF_PASSWORD }}
+
+      - name: Setup the JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          # JFrog platform url (for example: https://acme.jfrog.io) 
+          JF_URL: https://${{ vars.JF_URL }}
+          
+          # Basic authentication credentials
+          JF_USER: ${{ vars.JF_USER }}
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+
+      - name: Run the JFrog CLI commands
+        env:
+          JF_BUILD_NAME: nodegoat
+        run: |
+          jfrog rt ping
+          jfrog docker --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }} build -t ${{ vars.JF_URL }}/danielw-docker-local/$JF_BUILD_NAME:build-${{ github.run_number }} .
+          jfrog rt docker-push ${{ vars.JF_URL }}/danielw-docker-local/$JF_BUILD_NAME:build-${{github.run_number}} danielw-docker-local --build-name=$JF_BUILD_NAME --build-number=${{ github.run_number }}
+          jfrog rt build-publish $JF_BUILD_NAME ${{ github.run_number }}
+          jfrog build-scan $JF_BUILD_NAME ${{ github.run_number }}
